@@ -1,6 +1,12 @@
 node_modules
 dist
 .claude/settings.local.json
+
+# 같은 폴더에 있는 별도 프로젝트들 (이 저장소에 포함하지 않음)
+ai-newsletter/
+dam-mvp/
+dam-workflow/
+pdp-agent-mvp/
 dist-ssr
 *.local
 .DS_Store
