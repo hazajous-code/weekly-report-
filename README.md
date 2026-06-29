@@ -5,6 +5,9 @@
 
 React + Vite 기반 **프론트엔드 전용 프로토타입**입니다. 백엔드 없이 **Mock Data + localStorage**로 동작하며, **Claude 스타일**(웜 페이퍼 배경 · 클레이 액센트 · 세리프 헤딩)로 디자인했습니다. GitHub Pages에 바로 배포할 수 있습니다.
 
+> 📐 **아키텍처 설계도**(현재 MVP + 전사 To-Be): [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+> 🎙️ **기능 설명·시연 스크립트**: [docs/FEATURE_SCRIPT.md](docs/FEATURE_SCRIPT.md)
+
 ---
 
 ## 1. 서비스 개요

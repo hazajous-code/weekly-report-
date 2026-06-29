@@ -6,6 +6,30 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
       "port": 5173
+    },
+    {
+      "name": "ai-newsletter",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["vite", "ai-newsletter", "--port", "8090", "--strictPort"],
+      "port": 8090
+    },
+    {
+      "name": "dam-mvp",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["vite", "dam-mvp", "--port", "8091", "--strictPort"],
+      "port": 8091
+    },
+    {
+      "name": "pdp-agent-mvp",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["vite", "pdp-agent-mvp", "--port", "8092", "--strictPort"],
+      "port": 8092
+    },
+    {
+      "name": "dam-workflow",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["vite", "dam-workflow", "--port", "8093", "--strictPort"],
+      "port": 8093
     }
   ]
 }

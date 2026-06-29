@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DAM 자산 온보딩 워크플로 · 단계별 프로세스 도식</title>
+<style>
+  :root{
+    --bg:#f4f2ec; --surface:#fdfcf9; --surface-2:#f3f1ea;
+    --border:#e7e2d6; --border-strong:#d9d3c4;
+    --text:#20201d; --soft:#6b665c; --faint:#9c968a;
+    --clay:#c2613f;
+    --hq:#c0613e; --ag:#1f9fe0; --sys:#5b66d6; --qa:#8a5cd6; --lib:#16a974;
+    --serif:'Tiempos Text','Iowan Old Style',Georgia,'Nanum Myeongjo','Apple Myungjo',serif;
+    --sans:'Pretendard',-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Apple SD Gothic Neo',sans-serif;
+    --radius:14px; --radius-sm:9px;
+    --shadow:0 6px 24px rgba(40,33,22,.09); --shadow-sm:0 1px 2px rgba(40,33,22,.06);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+  h1,h2,h3,h4{margin:0;font-family:var(--serif);font-weight:600;letter-spacing:-.01em}
+  .wrap{max-width:1180px;margin:0 auto;padding:40px 28px 80px}
+  header.page{text-align:center;margin-bottom:34px}
+  header.page .kicker{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--clay)}
+  header.page h1{font-size:30px;margin:8px 0 6px}
+  header.page p{color:var(--soft);font-size:15px;max-width:720px;margin:0 auto}
+
+  /* ── state machine pipeline ── */
+  .pipeline{display:flex;align-items:stretch;gap:0;flex-wrap:wrap;margin:0 0 40px;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:var(--surface);box-shadow:var(--shadow-sm)}
+  .pipe-step{flex:1 1 18%;min-width:180px;padding:16px 18px;position:relative;border-right:1px solid var(--border)}
+  .pipe-step:last-child{border-right:none}
+  .pipe-step .n{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--clay);color:#fff;font-size:12px;font-weight:700;margin-bottom:8px}
+  .pipe-step h4{font-size:14.5px}
+  .pipe-step .sub{color:var(--faint);font-size:12px;margin-top:2px}
+  .pipe-step .state{margin-top:10px;font-size:11.5px;font-weight:600;color:var(--soft);background:var(--surface-2);border:1px solid var(--border);padding:3px 8px;border-radius:999px;display:inline-block}
+
+  /* ── legend ── */
+  .legend{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 26px;justify-content:center}
+  .chip-role{display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;background:var(--surface);border:1px solid var(--border);font-size:12.5px;font-weight:600}
+  .dot{width:11px;height:11px;border-radius:3px}
+
+  /* ── matrix ── */
+  .matrix{width:100%;border-collapse:separate;border-spacing:8px;margin-bottom:46px}
+  .matrix th{font-size:12px;color:var(--soft);font-weight:700;text-align:left;vertical-align:bottom;padding:4px 6px}
+  .matrix thead .stg{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px}
+  .matrix thead .stg .nn{font-weight:800;color:var(--clay);margin-right:4px}
+  .matrix thead .stg small{display:block;color:var(--faint);font-weight:500;font-size:11px;margin-top:2px}
+  .role-head{width:120px;color:#fff;border-radius:var(--radius-sm);padding:12px;vertical-align:middle}
+  .role-head strong{font-size:15px;font-family:var(--serif)}
+  .role-head span{display:block;font-size:11px;opacity:.85;font-weight:500;margin-top:2px}
+  .cell{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px;vertical-align:top;min-width:150px}
+  .cell.empty{background:transparent;border:1px dashed var(--border);}
+  .fn{display:block;background:var(--surface-2);border:1px solid var(--border);border-radius:7px;padding:7px 9px;font-size:12.5px;font-weight:600;margin-bottom:6px}
+  .fn:last-child{margin-bottom:0}
+  .fn .step{display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;font-size:10px;font-weight:800;color:#fff;margin-right:5px;vertical-align:middle}
+  .fn.auto{border-style:dashed;color:var(--sys)}
+
+  /* ── stage detail flow ── */
+  .stage{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);margin-bottom:22px;overflow:hidden}
+  .stage-head{display:flex;align-items:center;gap:14px;padding:18px 22px;border-bottom:1px solid var(--border);background:var(--surface-2)}
+  .stage-head .badge-n{flex-shrink:0;width:38px;height:38px;border-radius:11px;background:var(--clay);color:#fff;display:grid;place-items:center;font-family:var(--serif);font-size:20px;font-weight:600}
+  .stage-head h3{font-size:18px}
+  .stage-head .goal{color:var(--soft);font-size:13px;margin-top:2px}
+  .stage-head .state-pill{margin-left:auto;font-size:12px;font-weight:600;color:var(--clay);background:#faf2ed;border:1px solid #f0ddd1;padding:5px 12px;border-radius:999px;white-space:nowrap}
+  .stage-body{padding:20px 22px}
+  .flow{display:flex;align-items:stretch;gap:0;flex-wrap:wrap}
+  .node{flex:1 1 0;min-width:165px;background:var(--surface);border:1px solid var(--border-strong);border-radius:var(--radius-sm);padding:12px 13px;position:relative;margin:6px 26px 6px 0}
+  .node:after{content:"→";position:absolute;right:-23px;top:50%;transform:translateY(-50%);color:var(--faint);font-size:20px;font-weight:700}
+  .node:last-child{margin-right:6px}
+  .node:last-child:after{display:none}
+  .node .who{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;color:#fff;margin-bottom:8px}
+  .node .act{font-size:13.5px;font-weight:600}
+  .node .desc{font-size:12px;color:var(--soft);margin-top:4px;line-height:1.5}
+  .node.tag-auto{border-style:dashed;background:#f7f8fe}
+  .loop{margin-top:14px;font-size:12.5px;color:#7c4f12;background:#f7eddb;border:1px solid #ecd6a8;border-radius:var(--radius-sm);padding:9px 13px;display:flex;gap:8px;align-items:flex-start}
+
+  .section-title{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin:46px 0 16px;text-align:center}
+  footer{text-align:center;color:var(--faint);font-size:12.5px;margin-top:50px;border-top:1px solid var(--border);padding-top:20px}
+  @media print{body{background:#fff}.stage,.matrix .cell,.pipeline{box-shadow:none}}
+  @media (max-width:760px){.node:after{display:none}.node{margin-right:6px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="page">
+    <div class="kicker">Digital Asset Management</div>
+    <h1>DAM 자산 온보딩 워크플로</h1>
+    <p>PIM2.0 기준정보 생성 → 에이전시 제작·업로드 → 자동 게이트키핑 → WCM QA·DAM 이관 → 운영·보존까지,
+       <strong>역할 5주체 × 단계 5스텝</strong>으로 자산이 전사 라이브러리에 안착하는 전 과정입니다.</p>
+  </header>
+
+  <!-- 상태 머신 파이프라인 -->
+  <div class="pipeline">
+    <div class="pipe-step"><div class="n">1</div><h4>기준정보 · 생성</h4><div class="sub">PIM2.0 → 프로젝트</div><div class="state">Draft · Metadata Ready</div></div>
+    <div class="pipe-step"><div class="n">2</div><h4>제작 · 업로드</h4><div class="sub">Agency 자산 제출</div><div class="state">Asset Uploading</div></div>
+    <div class="pipe-step"><div class="n">3</div><h4>자동 검수</h4><div class="sub">Gatekeeping</div><div class="state">Gatekeeping · Exception</div></div>
+    <div class="pipe-step"><div class="n">4</div><h4>품질 · 이관</h4><div class="sub">WCM QA → Transfer</div><div class="state">WCM QA · Approved</div></div>
+    <div class="pipe-step"><div class="n">5</div><h4>운영 · 분석</h4><div class="sub">Dashboard · 보존</div><div class="state">Transferred</div></div>
+  </div>
+
+  <!-- 역할 범례 -->
+  <div class="legend">
+    <span class="chip-role"><span class="dot" style="background:var(--hq)"></span>HQ — 본사 PMO (거버넌스)</span>
+    <span class="chip-role"><span class="dot" style="background:var(--ag)"></span>AG — Agency (제작·제출)</span>
+    <span class="chip-role"><span class="dot" style="background:var(--sys)"></span>SYS — System 자동화</span>
+    <span class="chip-role"><span class="dot" style="background:var(--qa)"></span>QA — CNX QA (품질 검수)</span>
+    <span class="chip-role"><span class="dot" style="background:var(--lib)"></span>LIB — Librarian (이관·보존)</span>
+  </div>
+
+  <!-- 역할 × 단계 매트릭스 -->
+  <table class="matrix">
+    <thead>
+      <tr>
+        <th></th>
+        <th><div class="stg"><span class="nn">①</span>기준정보·생성<small>PIM2.0 → 프로젝트</small></div></th>
+        <th><div class="stg"><span class="nn">②</span>제작·업로드<small>Agency 자산 제출</small></div></th>
+        <th><div class="stg"><span class="nn">③</span>자동 검수<small>Gatekeeping</small></div></th>
+        <th><div class="stg"><span class="nn">④</span>품질·이관<small>WCM QA → Transfer</small></div></th>
+        <th><div class="stg"><span class="nn">⑤</span>운영·분석<small>Dashboard·보존</small></div></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="role-head" style="background:var(--hq)"><strong>HQ</strong><span>HQ PMO</span></td>
+        <td class="cell"><span class="fn"><span class="step" style="background:var(--hq)">1</span>프로젝트 생성</span><span class="fn"><span class="step" style="background:var(--hq)">1</span>메타데이터 매핑</span><span class="fn"><span class="step" style="background:var(--hq)">1</span>템플릿·계정 추천</span></td>
+        <td class="cell empty"></td>
+        <td class="cell"><span class="fn"><span class="step" style="background:var(--hq)">2</span>예외 승인</span></td>
+        <td class="cell empty"></td>
+        <td class="cell"><span class="fn"><span class="step" style="background:var(--hq)">·</span>풀 관리</span><span class="fn"><span class="step" style="background:var(--hq)">·</span>현황 모니터링</span></td>
+      </tr>
+      <tr>
+        <td class="role-head" style="background:var(--ag)"><strong>AG</strong><span>Agency</span></td>
+        <td class="cell empty"></td>
+        <td class="cell"><span class="fn"><span class="step" style="background:var(--ag)">3</span>자산 업로드</span><span class="fn"><span class="step" style="background:var(--ag)">3</span>파일명·메타 검증</span><span class="fn"><span class="step" style="background:var(--ag)">↺</span>수정 후 제출</span></td>
+        <td class="cell empty"></td>
+        <td class="cell empty"></td>
+        <td class="cell empty"></td>
+      </tr>
+      <tr>
+        <td class="role-head" style="background:var(--sys)"><strong>SYS</strong><span>System 자동</span></td>
+        <td class="cell"><span class="fn auto"><span class="step" style="background:var(--sys)">1</span>PIM 기준정보 매핑</span></td>
+        <td class="cell empty"></td>
+        <td class="cell"><span class="fn auto"><span class="step" style="background:var(--sys)">2</span>자동 검증</span><span class="fn auto"><span class="step" style="background:var(--sys)">2</span>정상 건 자동 승인</span></td>
+        <td class="cell"><span class="fn auto"><span class="step" style="background:var(--sys)">4</span>WCM 자동 점검</span></td>
+        <td class="cell"><span class="fn auto"><span class="step" style="background:var(--sys)">6</span>보존·삭제 알림</span></td>
+      </tr>
+      <tr>
+        <td class="role-head" style="background:var(--qa)"><strong>QA</strong><span>CNX QA</span></td>
+        <td class="cell empty"></td>
+        <td class="cell empty"></td>
+        <td class="cell empty"></td>
+        <td class="cell"><span class="fn"><span class="step" style="background:var(--qa)">4</span>WCM QA 승인 / 반려</span></td>
+        <td class="cell empty"></td>
+      </tr>
+      <tr>
+        <td class="role-head" style="background:var(--lib)"><strong>LIB</strong><span>Librarian</span></td>
+        <td class="cell empty"></td>
+        <td class="cell empty"></td>
+        <td class="cell empty"></td>
+        <td class="cell"><span class="fn"><span class="step" style="background:var(--lib)">5</span>DAM 이관 최종 승인</span><span class="fn"><span class="step" style="background:var(--lib)">5</span>이관 완료(Transferred)</span></td>
+        <td class="cell"><span class="fn"><span class="step" style="background:var(--lib)">6</span>아카이브 관리</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="section-title">단계별 프로세스 흐름</div>
+
+  <!-- Stage 1 -->
+  <section class="stage">
+    <div class="stage-head">
+      <div class="badge-n">1</div>
+      <div><h3>기준정보 · 생성</h3><div class="goal">자산을 담을 "그릇"(프로젝트)과 메타데이터 표준을 먼저 정의한다.</div></div>
+      <div class="state-pill">Draft · Metadata Ready</div>
+    </div>
+    <div class="stage-body">
+      <div class="flow">
+        <div class="node"><span class="who" style="background:var(--hq)">HQ PMO</span><div class="act">프로젝트 생성</div><div class="desc">PIM2.0의 제품·캠페인 정보를 받아 DAM에 프로젝트를 개설한다.</div></div>
+        <div class="node"><span class="who" style="background:var(--hq)">HQ PMO</span><div class="act">메타데이터 매핑</div><div class="desc">제품코드·시즌·채널 등 어떤 속성을 필수/선택으로 붙일지 표준 정의.</div></div>
+        <div class="node tag-auto"><span class="who" style="background:var(--sys)">SYS 자동</span><div class="act">PIM 기준정보 매핑</div><div class="desc">PIM2.0 기준정보를 시스템이 프로젝트 메타에 자동 연결 — 수기 입력 제거.</div></div>
+        <div class="node"><span class="who" style="background:var(--hq)">HQ PMO</span><div class="act">템플릿·계정 추천</div><div class="desc">프로젝트 유형에 맞는 폴더·메타 템플릿과 참여 계정(에이전시)을 배정.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stage 2 -->
+  <section class="stage">
+    <div class="stage-head">
+      <div class="badge-n">2</div>
+      <div><h3>제작 · 업로드</h3><div class="goal">에이전시가 제작한 자산을 규격에 맞게 제출한다.</div></div>
+      <div class="state-pill">Asset Uploading</div>
+    </div>
+    <div class="stage-body">
+      <div class="flow">
+        <div class="node"><span class="who" style="background:var(--ag)">Agency</span><div class="act">자산 업로드</div><div class="desc">이미지·영상·문서 등 제작 자산을 해당 프로젝트에 업로드.</div></div>
+        <div class="node"><span class="who" style="background:var(--ag)">Agency</span><div class="act">파일명·메타 검증</div><div class="desc">파일명 규칙과 필수 메타 입력 여부를 업로드 시점에 1차 자체 검증.</div></div>
+        <div class="node"><span class="who" style="background:var(--ag)">Agency</span><div class="act">수정 후 제출 ↺</div><div class="desc">검수·QA에서 반려된 자산을 보완해 재업로드하는 루프백 경로.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stage 3 -->
+  <section class="stage">
+    <div class="stage-head">
+      <div class="badge-n">3</div>
+      <div><h3>자동 검수 (Gatekeeping)</h3><div class="goal">시스템이 규칙 기반으로 자동 점검하고, 사람은 예외만 처리한다.</div></div>
+      <div class="state-pill">Gatekeeping In Progress · Exception Review</div>
+    </div>
+    <div class="stage-body">
+      <div class="flow">
+        <div class="node tag-auto"><span class="who" style="background:var(--sys)">SYS 자동</span><div class="act">자동 검증</div><div class="desc">파일 규격·해상도·컬러·메타 누락 등을 자동 룰로 일괄 검사.</div></div>
+        <div class="node tag-auto"><span class="who" style="background:var(--sys)">SYS 자동</span><div class="act">정상 건 자동 승인</div><div class="desc">모든 룰을 통과한 자산은 사람 개입 없이 자동 승인 — 처리량·속도의 핵심.</div></div>
+        <div class="node"><span class="who" style="background:var(--hq)">HQ PMO</span><div class="act">예외 승인</div><div class="desc">룰 위반·모호 케이스만 HQ가 사람 판단으로 승인 또는 반려 처리.</div></div>
+      </div>
+      <div class="loop"><span>↺</span><div><strong>반려 루프:</strong> 예외 반려 시 → Agency「수정 후 제출」로 되돌아가 재검수.</div></div>
+    </div>
+  </section>
+
+  <!-- Stage 4 -->
+  <section class="stage">
+    <div class="stage-head">
+      <div class="badge-n">4</div>
+      <div><h3>품질 · 이관 (WCM QA → Transfer)</h3><div class="goal">채널 게시 품질을 사람이 최종 보증하고 DAM으로 정식 이관한다.</div></div>
+      <div class="state-pill">WCM QA Requested · Approved</div>
+    </div>
+    <div class="stage-body">
+      <div class="flow">
+        <div class="node tag-auto"><span class="who" style="background:var(--sys)">SYS 자동</span><div class="act">WCM 자동 점검</div><div class="desc">웹 콘텐츠 관리(채널 규격·사용 적합성) 관점의 자동 선검사.</div></div>
+        <div class="node"><span class="who" style="background:var(--qa)">CNX QA</span><div class="act">WCM QA 승인 / 반려</div><div class="desc">QA 담당자가 품질을 사람이 최종 승인하거나 반려한다.</div></div>
+        <div class="node"><span class="who" style="background:var(--lib)">Librarian</span><div class="act">DAM 이관 최종 승인</div><div class="desc">라이브러리언이 DAM 정식 등록을 최종 승인.</div></div>
+        <div class="node"><span class="who" style="background:var(--lib)">Librarian</span><div class="act">이관 완료 (Transferred)</div><div class="desc">자산이 DAM에 정식 귀속 — 전사에서 검색·재사용 가능 상태.</div></div>
+      </div>
+      <div class="loop"><span>↺</span><div><strong>반려 루프:</strong> WCM QA 반려 시 → Agency「수정 후 제출」로 되돌아간다.</div></div>
+    </div>
+  </section>
+
+  <!-- Stage 5 -->
+  <section class="stage">
+    <div class="stage-head">
+      <div class="badge-n">5</div>
+      <div><h3>운영 · 분석</h3><div class="goal">이관된 자산을 운영·모니터링하고 생명주기(보존/폐기)를 관리한다.</div></div>
+      <div class="state-pill">Transferred</div>
+    </div>
+    <div class="stage-body">
+      <div class="flow">
+        <div class="node"><span class="who" style="background:var(--hq)">HQ PMO</span><div class="act">풀 관리</div><div class="desc">자산 풀(라이브러리)을 카테고리·권한 단위로 운영·정비.</div></div>
+        <div class="node"><span class="who" style="background:var(--hq)">HQ PMO</span><div class="act">현황 모니터링</div><div class="desc">제출률·처리율·반려율·이관 현황을 대시보드로 모니터링.</div></div>
+        <div class="node tag-auto"><span class="who" style="background:var(--sys)">SYS 자동</span><div class="act">보존·삭제 알림</div><div class="desc">보존기간 도래 자산에 보존 연장/삭제를 자동 알림.</div></div>
+        <div class="node"><span class="who" style="background:var(--lib)">Librarian</span><div class="act">아카이브 관리</div><div class="desc">장기 보존 자산을 아카이브로 이관·관리.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    DAM 자산 온보딩 워크플로 · 상태 흐름: Draft·Metadata Ready → Asset Uploading → Gatekeeping/Exception → WCM QA·Approved → Transferred<br/>
+    실선 노드 = 사람 처리, 점선 노드 = 시스템 자동 처리 · ↺ = 반려 시 재제출 루프
+  </footer>
+
+</div>
+</body>
+</html>
